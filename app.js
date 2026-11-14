@@ -281,28 +281,12 @@ function init() {
   loadingOverlay.classList.add('fade-out');
 }
 
-// Comparison changes only rendered colors: edits and saved designs remain intact.
-let comparisonMode = 'after';
 let selectedSurface = null;
-function comparisonText() {
-  const lang = document.documentElement.lang;
-  return ({en: ['Before · original colors', 'After · your design', 'Click a building surface to edit its color', 'Editing: '], es: ['Antes · colores originales', 'Después · tu diseño', 'Pulsa una superficie para editar su color', 'Editando: '], ca: ['Abans · colors originals', 'Després · el teu disseny', 'Prem una superfície per editar-ne el color', 'Editant: ']})[lang] || comparisonTextEnglish;
-}
-const comparisonTextEnglish = ['Before · original colors', 'After · your design', 'Click a building surface to edit its color', 'Editing: '];
-function refreshComparisonUI() {
-  const words = comparisonText();
-  ['before', 'after'].forEach((mode, i) => {
-    const button = document.getElementById('compare-' + mode);
-    button.textContent = words[i];
-    button.setAttribute('aria-pressed', String(comparisonMode === mode));
-  });
+function refreshSurfaceStatus() {
   const input = selectedSurface && colorInputs[selectedSurface];
   const label = input && document.querySelector(`label[for="${input.id}"] span`);
-  document.getElementById('surface-status').textContent = label ? words[3] + label.textContent : words[2];
-}
-function setComparison(mode) {
-  comparisonMode = mode;
-  refreshComparisonUI();
+  const prefix = ({en: 'Editing: ', es: 'Editando: ', ca: 'Editant: '})[document.documentElement.lang] || 'Editing: ';
+  document.getElementById('surface-status').textContent = label ? prefix + label.textContent : '';
 }
 function syncBunnyColorSettings() {
   const settings = document.getElementById('bunny-color-settings');
@@ -330,13 +314,6 @@ function keepCameraAboveGround() {
 }
 
 function setupSurfaceEditing() {
-  document.getElementById('compare-before').addEventListener('click', () => setComparison('before'));
-  document.getElementById('compare-after').addEventListener('click', () => setComparison('after'));
-  // Editing any control returns to the design without overwriting its state.
-  document.querySelector('.ui-container').addEventListener('input', () => setComparison('after'));
-  document.querySelector('.ui-container').addEventListener('click', e => {
-    if (e.target.closest('.preset-card, .saved-style-card, #btn-randomize')) setComparison('after');
-  });
   const canvas = renderer.domElement;
   const raycaster = new THREE.Raycaster();
   let bunnyTapTimer = null;
@@ -392,7 +369,7 @@ function setupSurfaceEditing() {
     const key = Object.keys(state.colors).find(key => materials[key] === hit.object.material);
     if (!key || !colorInputs[key]) return;
     selectedSurface = key;
-    setComparison('after');
+    refreshSurfaceStatus();
     const panel = document.querySelector('.ui-container');
     if (panel.inert) document.getElementById('btn-floating-open').click();
     document.querySelector('[data-tab="colors"]').click();
@@ -402,18 +379,11 @@ function setupSurfaceEditing() {
     input.scrollIntoView({block: 'center', behavior: 'smooth'});
     input.focus({preventScroll: true});
   });
-  refreshComparisonUI();
+  refreshSurfaceStatus();
 }
 function renderVisualization() {
   keepCameraAboveGround();
-  const original = presets['modern-grey'];
-  if (comparisonMode === 'before') {
-    Object.keys(state.colors).forEach(key => { if (materials[key] && original[key]) materials[key].color.set(original[key]); });
-  }
   renderer.render(scene, camera);
-  if (comparisonMode === 'before') {
-    Object.keys(state.colors).forEach(key => { if (materials[key]) materials[key].color.set(state.colors[key]); });
-  }
 }
 
 function addArchitecturalDetails() {
@@ -2568,7 +2538,7 @@ function setLanguage(lang) {
 
   // Re-render saved styles list to update locale text (e.g. empty message)
   renderSavedStyles();
-  refreshComparisonUI();
+  refreshSurfaceStatus();
 }
 
 // --- Saved Styles Management ---

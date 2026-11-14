@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=9">
+  <link rel="stylesheet" href="styles.css?v=13">
   <!-- Import map for modern ES modules three.js -->
   <script type="importmap">
     {
@@ -22,13 +22,7 @@
   <!-- Canvas for 3D rendering -->
   <canvas id="webgl-canvas" tabindex="0" aria-label="Building view. Drag to rotate. Right-drag, Shift-drag, or use arrow keys to pan."></canvas>
 
-  <aside class="comparison-tools" aria-label="Before and after comparison">
-    <div class="comparison-buttons" role="group" aria-label="Compare colors">
-      <button id="compare-before" aria-pressed="false">Before · original colors</button>
-      <button id="compare-after" aria-pressed="true">After · your design</button>
-    </div>
-    <p id="surface-status" role="status">Click a building surface to edit its color</p>
-  </aside>
+  <p id="surface-status" class="visually-hidden" role="status"></p>
 
   <!-- Loading Overlay -->
   <div id="loading-overlay">
@@ -425,6 +419,6 @@
     <p data-i18n="interactionHelp">🖱️ Left Click + Drag to rotate | 🖱️ Right Click + Drag to pan | 📜 Scroll to zoom</p>
   </div>
 
-  <script type="module" src="app.js?v=12"></script>
+  <script type="module" src="app.js?v=13"></script>
 </body>
 </html>
