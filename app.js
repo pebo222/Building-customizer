@@ -224,6 +224,7 @@ function init() {
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
   renderer.shadowMap.enabled = false;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
 
@@ -608,76 +609,32 @@ function updateGlassEnvironment(time) {
   }
   glassEnvMap = createReflectiveEnvMap(time);
   scene.environment = glassEnvMap;
-  if (materials.glass) {
-    materials.glass.envMap = glassEnvMap;
-    if (time === 'noon') {
-      materials.glass.envMapIntensity = 1.1;
-    } else if (time === 'sunset') {
-      materials.glass.envMapIntensity = 1.0;
-    } else {
-      materials.glass.envMapIntensity = 1.0;
-    }
-    materials.glass.needsUpdate = true;
-  }
+
 }
 
 // --- Materials Initialization ---
 function initMaterials() {
-  materials.leftWall = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.leftWallDiagonal = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.leftWallParallel = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.rightWall = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.backWall = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.frontFacade = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.75, metalness: 0.0, side: THREE.DoubleSide });
-  materials.leftFacadeStrip = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.rightFacadeStrip = new THREE.MeshStandardMaterial({ color: 0xd39c82, roughness: 0.8, metalness: 0.0, side: THREE.DoubleSide });
-  materials.balconies = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.0, side: THREE.DoubleSide });
-  materials.dividers = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.0, side: THREE.DoubleSide });
-  materials.awnings = new THREE.MeshStandardMaterial({ color: 0x1b6e4e, roughness: 0.9, metalness: 0.0, side: THREE.DoubleSide });
-  materials.railings = new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.5, metalness: 0.2 });
-  materials.frames = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.5, metalness: 0.0 });
-  materials.roof = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.6, metalness: 0.0, side: THREE.DoubleSide });
-  materials.roofFixtures = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.7, metalness: 0.0 });
-
-  // Fixed Materials
-  materials.glass = new THREE.MeshPhysicalMaterial({
-    color: new THREE.Color(state.colors.glass),
-    roughness: 0.12,
-    metalness: 0.1,
-    transparent: true,
-    opacity: 1.0,
-    transmission: 0.15,
-    thickness: 0.15,
-    ior: 1.52,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.01,
-    side: THREE.DoubleSide
+  // Display selected sRGB paint colors directly. Lighting, environment reflections,
+  // fog, and photographic tone mapping must not recolor the chosen HEX value.
+  Object.entries(state.colors).forEach(([key, color]) => {
+    materials[key] = new THREE.MeshBasicMaterial({
+      color,
+      side: THREE.DoubleSide,
+      fog: false,
+      toneMapped: false
+    });
   });
+
   materials.walkway = new THREE.MeshStandardMaterial({ color: 0x7a7a7a, roughness: 0.9, metalness: 0.1 });
   materials.ground = new THREE.MeshStandardMaterial({ color: 0x557a46, roughness: 0.95, metalness: 0.0 });
   materials.lampPost = new THREE.MeshStandardMaterial({ color: 0x222222, roughness: 0.3, metalness: 0.8 });
   materials.lampGlass = new THREE.MeshBasicMaterial({ color: 0xffe066, transparent: true, opacity: 0.7 });
-  const stucco = surfaceRelief('stucco', 12);
-  for (const key of ['leftWall', 'leftWallDiagonal', 'leftWallParallel', 'rightWall', 'backWall', 'frontFacade', 'leftFacadeStrip', 'rightFacadeStrip']) {
-    materials[key].bumpMap = stucco;
-    materials[key].bumpScale = 0.025;
-    materials[key].roughness = 0.92;
-    materials[key].envMapIntensity = 0.15;
-  }
-  for (const key of ['balconies', 'dividers', 'roof']) {
-    materials[key].bumpMap = stucco;
-    materials[key].bumpScale = 0.015;
-    materials[key].roughness = 0.85;
-  }
   materials.walkway.bumpMap = surfaceRelief('paving', 4);
   materials.walkway.bumpScale = 0.045;
   materials.walkway.color.set('#a49f92');
   materials.ground.bumpMap = surfaceRelief('grass', 90);
   materials.ground.bumpScale = 0.08;
   materials.ground.color.set('#70785a');
-  materials.railings.metalness = 0.65;
-  materials.railings.roughness = 0.32;
-  materials.frames.metalness = 0.35;
 
 }
 
