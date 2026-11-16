@@ -1169,7 +1169,22 @@ function buildScene() {
   // Roof Slab
   const roofExtrude = { depth: 0.4, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.02, bevelSegments: 3 };
   const roofSlabGeo = new THREE.ExtrudeGeometry(roofShape, roofExtrude);
-  const roofSlab = new THREE.Mesh(roofSlabGeo, materials.roof);
+  // After the -90° X rotation, the local -Z cap is the balcony ceiling.
+  // Give that cap its own material group so painting/clicking it uses balconies.
+  const roofNormals = roofSlabGeo.getAttribute('normal');
+  roofSlabGeo.clearGroups();
+  let roofGroupStart = 0;
+  let roofGroupMaterial = roofNormals.getZ(0) < -0.99 ? 1 : 0;
+  for (let vertex = 3; vertex < roofNormals.count; vertex += 3) {
+    const materialIndex = roofNormals.getZ(vertex) < -0.99 ? 1 : 0;
+    if (materialIndex !== roofGroupMaterial) {
+      roofSlabGeo.addGroup(roofGroupStart, vertex - roofGroupStart, roofGroupMaterial);
+      roofGroupStart = vertex;
+      roofGroupMaterial = materialIndex;
+    }
+  }
+  roofSlabGeo.addGroup(roofGroupStart, roofNormals.count - roofGroupStart, roofGroupMaterial);
+  const roofSlab = new THREE.Mesh(roofSlabGeo, [materials.roof, materials.balconies]);
   roofSlab.rotation.x = -Math.PI / 2;
   const firstFloorHeight = 3.8;
   const floors = 3;
