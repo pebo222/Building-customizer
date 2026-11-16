@@ -17,6 +17,9 @@ const state = {
     rightWall: '#d39c82',
     backWall: '#d39c82',
     balconies: '#ffffff',
+    balconyFloor: '#b4aa95',
+    balconyCeiling: '#ffffff',
+    windowsills: '#ffffff',
     dividers: '#d0d0d0',
     awnings: '#1b6e4e',
     railings: '#3a3a3a',
@@ -35,6 +38,9 @@ const state = {
     rightWall: false,
     backWall: false,
     balconies: false,
+    balconyFloor: false,
+    balconyCeiling: false,
+    windowsills: false,
     dividers: false,
     awnings: false,
     railings: false,
@@ -77,7 +83,7 @@ const presets = {
     dividers: '#d0d0d0',
     awnings: '#1b6e4e',
     railings: '#3a3a3a',
-    frames: '#2a2a2a',
+    frames: '#ffffff',
     roof: '#d0d0d0',
     roofFixtures: '#ffffff',
     glass: '#8ab4f8'
@@ -138,6 +144,17 @@ const presets = {
   }
 };
 
+// Older saved designs inherit their former slab color for ceilings and sills.
+function withBalconyColors(colors) {
+  return {
+    balconyFloor: '#b4aa95',
+    balconyCeiling: colors.balconies || '#d0d0d0',
+    windowsills: colors.balconies || '#d0d0d0',
+    ...colors
+  };
+}
+Object.keys(presets).forEach(key => { presets[key] = withBalconyColors(presets[key]); });
+
 // --- Three.js Globals ---
 let scene, camera, renderer, controls;
 let sunLight, hemiLight, ambientLight, streetLampLight;
@@ -183,6 +200,9 @@ const colorInputs = {
   rightWall: document.getElementById('color-right-wall'),
   backWall: document.getElementById('color-back-wall'),
   balconies: document.getElementById('color-balconies'),
+  balconyFloor: document.getElementById('color-balcony-floor'),
+  balconyCeiling: document.getElementById('color-balcony-ceiling'),
+  windowsills: document.getElementById('color-windowsills'),
   dividers: document.getElementById('color-dividers'),
   awnings: document.getElementById('color-awnings'),
   railings: document.getElementById('color-railings'),
@@ -202,6 +222,9 @@ const colorLabels = {
   rightWall: document.getElementById('val-right-wall'),
   backWall: document.getElementById('val-back-wall'),
   balconies: document.getElementById('val-balconies'),
+  balconyFloor: document.getElementById('val-balcony-floor'),
+  balconyCeiling: document.getElementById('val-balcony-ceiling'),
+  windowsills: document.getElementById('val-windowsills'),
   dividers: document.getElementById('val-dividers'),
   awnings: document.getElementById('val-awnings'),
   railings: document.getElementById('val-railings'),
@@ -362,6 +385,7 @@ function keepCameraAboveGround() {
 }
 
 function getSurfaceColorKey(hit) {
+  if (hit.object.userData?.colorKey) return hit.object.userData.colorKey;
   const meshMaterial = hit.object.material;
   const material = Array.isArray(meshMaterial)
     ? meshMaterial[hit.face?.materialIndex ?? 0]
@@ -444,7 +468,7 @@ function renderVisualization() {
 
 function addArchitecturalDetails() {
   const grout = new THREE.MeshStandardMaterial({color: '#88857d', roughness: 1});
-  const tile = new THREE.MeshStandardMaterial({color: '#b4aa95', roughness: 0.86, bumpMap: surfaceRelief('stucco', 8), bumpScale: 0.01});
+  const tile = materials.balconyFloor;
   function box(w, h, d, x, y, z, material) {
     const mesh = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), material);
     mesh.position.set(x, y, z); mesh.castShadow = true; mesh.receiveShadow = true;
@@ -453,12 +477,11 @@ function addArchitecturalDetails() {
   for (let floor = 0; floor < 3; floor++) {
     const y = 3.8 + floor * 3.3 + 0.365;
     box(8.52, 0.025, 2.06, 0, y, 6.15, tile);
-    for (let x = -3.9; x < 4.2; x += 0.6) box(0.012, 0.004, 2.06, x, y + 0.014, 6.15, grout);
-    for (let z = 5.4; z < 7.2; z += 0.6) box(8.52, 0.004, 0.012, 0, y + 0.014, z, grout);
+    for (let x = -3.9; x < 4.2; x += 0.6) box(0.012, 0.004, 2.06, x, y + 0.014, 6.15, grout).userData.colorKey = 'balconyFloor';
+    for (let z = 5.4; z < 7.2; z += 0.6) box(8.52, 0.004, 0.012, 0, y + 0.014, z, grout).userData.colorKey = 'balconyFloor';
   }
-  // Entrance handle and threshold.
+  // Entrance handle.
   box(0.035, 0.4, 0.065, 0.78, 1.45, 5.46, materials.railings);
-  box(1.6, 0.06, 0.32, 0, 0.03, 5.4, materials.balconies);
 }
 
 // Fit the architecture, reserving space for the desktop controls.
@@ -647,7 +670,7 @@ function initMaterials() {
 }
 
 // --- Helper: Create a Hollow Architectural Frame ---
-function createHollowFrame(w, h, depth, border, x, y, z, frameMat, glassMat, isGarage = false) {
+function createHollowFrame(w, h, depth, border, x, y, z, frameMat, glassMat, isGarage = false, includeSill = true) {
   const group = new THREE.Group();
 
   // Top frame member
@@ -697,11 +720,13 @@ function createHollowFrame(w, h, depth, border, x, y, z, frameMat, glassMat, isG
     const glass = new THREE.Mesh(glassGeo, glassMat);
     glass.position.set(x, y, z + 0.04);
     group.add(glass);
-    const sill = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, 0.06, depth + 0.14), materials.balconies);
-    sill.position.set(x, y - h / 2 - 0.03, z + 0.04);
-    sill.castShadow = true;
-    sill.receiveShadow = true;
-    group.add(sill);
+    if (includeSill) {
+      const sill = new THREE.Mesh(new THREE.BoxGeometry(w + 0.12, 0.06, depth + 0.14), materials.windowsills);
+      sill.position.set(x, y - h / 2 - 0.03, z + 0.04);
+      sill.castShadow = true;
+      sill.receiveShadow = true;
+      group.add(sill);
+    }
   }
 
   return group;
@@ -988,6 +1013,28 @@ function createAwning(ySlabUnderside, xCenter, width, projD, bD) {
   return awningGroup;
 }
 
+// Extrusions rotate -90° on X: +Z becomes the floor, -Z the ceiling.
+// Material slots: 0 = floor/roof top, 1 = slab edge, 2 = ceiling.
+function slabMaterialIndex(normalY, normalZ, roof = false) {
+  if (normalZ < -0.5) return 2;
+  if (roof) return normalZ > 0.99 ? 0 : 1; // All perimeter edges, including both balcony sides.
+  return normalZ > 0.5 ? 0 : 1;
+}
+function assignSlabMaterials(geometry, roof = false) {
+  const normals = geometry.getAttribute('normal');
+  geometry.clearGroups();
+  let start = 0;
+  let current = slabMaterialIndex(normals.getY(0), normals.getZ(0), roof);
+  for (let vertex = 3; vertex < normals.count; vertex += 3) {
+    const index = slabMaterialIndex(normals.getY(vertex), normals.getZ(vertex), roof);
+    if (index !== current) {
+      geometry.addGroup(start, vertex - start, current);
+      start = vertex; current = index;
+    }
+  }
+  geometry.addGroup(start, normals.count - start, current);
+}
+
 function buildScene() {
   buildingGroup = new THREE.Group();
 
@@ -1169,22 +1216,9 @@ function buildScene() {
   // Roof Slab
   const roofExtrude = { depth: 0.4, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.02, bevelSegments: 3 };
   const roofSlabGeo = new THREE.ExtrudeGeometry(roofShape, roofExtrude);
-  // After the -90° X rotation, the local -Z cap is the balcony ceiling.
-  // Give that cap its own material group so painting/clicking it uses balconies.
-  const roofNormals = roofSlabGeo.getAttribute('normal');
-  roofSlabGeo.clearGroups();
-  let roofGroupStart = 0;
-  let roofGroupMaterial = roofNormals.getZ(0) < -0.99 ? 1 : 0;
-  for (let vertex = 3; vertex < roofNormals.count; vertex += 3) {
-    const materialIndex = roofNormals.getZ(vertex) < -0.99 ? 1 : 0;
-    if (materialIndex !== roofGroupMaterial) {
-      roofSlabGeo.addGroup(roofGroupStart, vertex - roofGroupStart, roofGroupMaterial);
-      roofGroupStart = vertex;
-      roofGroupMaterial = materialIndex;
-    }
-  }
-  roofSlabGeo.addGroup(roofGroupStart, roofNormals.count - roofGroupStart, roofGroupMaterial);
-  const roofSlab = new THREE.Mesh(roofSlabGeo, [materials.roof, materials.balconies]);
+  // Local -Z is the ceiling; local -Y faces the front after rotation.
+  assignSlabMaterials(roofSlabGeo, true);
+  const roofSlab = new THREE.Mesh(roofSlabGeo, [materials.roof, materials.balconies, materials.balconyCeiling]);
   roofSlab.rotation.x = -Math.PI / 2;
   const firstFloorHeight = 3.8;
   const floors = 3;
@@ -1212,7 +1246,8 @@ function buildScene() {
 
     const slabSettings = { depth: 0.35, bevelEnabled: true, bevelThickness: 0.05, bevelSize: 0.02, bevelSegments: 3 };
     const slabGeo = new THREE.ExtrudeGeometry(balconyShape, slabSettings);
-    const slab = new THREE.Mesh(slabGeo, materials.balconies);
+    assignSlabMaterials(slabGeo);
+    const slab = new THREE.Mesh(slabGeo, [materials.balconyFloor, materials.balconies, materials.balconyCeiling]);
     slab.castShadow = true;
     slab.receiveShadow = true;
     slab.rotation.x = -Math.PI / 2;
@@ -1292,7 +1327,8 @@ function buildScene() {
         bD / 2,
         materials.frames,
         materials.glass,
-        false
+        false,
+        win.type !== 'door' // Door sills protrude through the ceiling below.
       );
       buildingGroup.add(winGroup);
     });
@@ -1429,7 +1465,7 @@ function buildScene() {
   buildingGroup.add(garage);
 
   // Main Entrance Door
-  const mainDoor = createHollowFrame(2.0, 3.0, 0.12, 0.1, 0.0, 1.5, bD / 2, materials.frames, materials.glass, false);
+  const mainDoor = createHollowFrame(2.0, 3.0, 0.12, 0.1, 0.0, 1.5, bD / 2, materials.frames, materials.glass, false, false);
   buildingGroup.add(mainDoor);
 
   // Shopfront Window
@@ -1674,7 +1710,7 @@ function setupEventListeners() {
     let hasSeed = false;
 
     const wallKeys = ['leftWall', 'leftWallDiagonal', 'leftWallParallel', 'frontFacade', 'leftFacadeStrip', 'rightFacadeStrip', 'rightWall', 'backWall'];
-    const structureKeys = ['balconies', 'roof', 'dividers', 'roofFixtures'];
+    const structureKeys = ['balconies', 'balconyFloor', 'balconyCeiling', 'windowsills', 'roof', 'dividers', 'roofFixtures'];
     
     let seedKey = lockedKeys.find(k => wallKeys.includes(k)) || 
                   lockedKeys.find(k => structureKeys.includes(k)) || 
@@ -2338,7 +2374,10 @@ const translations = {
     labelRightFacadeStrip: "Right Facade Strip",
     labelRightWall: "Right Side Wall",
     labelBackWall: "Back Wall",
-    labelBalconies: "Balcony Slabs & Pillars",
+    labelBalconies: "Balcony Slab Edges",
+    labelBalconyFloor: "Balcony Floors",
+    labelBalconyCeiling: "Balcony Ceilings",
+    labelWindowsills: "Windowsills",
     labelDividers: "Balcony Divider",
     labelAwnings: "Awnings (Canvas fabric)",
     labelRailings: "Metal Railings",
@@ -2399,7 +2438,10 @@ const translations = {
     labelRightFacadeStrip: "Franja Derecha de la Fachada",
     labelRightWall: "Pared Lateral Derecha",
     labelBackWall: "Pared Trasera",
-    labelBalconies: "Losas y Pilares de Balcón",
+    labelBalconies: "Cantos de Losa de Balcón",
+    labelBalconyFloor: "Suelos de Balcón",
+    labelBalconyCeiling: "Techos de Balcón",
+    labelWindowsills: "Alféizares",
     labelDividers: "Separador de Balcón",
     labelAwnings: "Toldos (Lona)",
     labelRailings: "Barandillas Metálicas",
@@ -2460,7 +2502,10 @@ const translations = {
     labelRightFacadeStrip: "Franja Dreta de la Fatxada",
     labelRightWall: "Paret Lateral Dreta",
     labelBackWall: "Paret Posterior",
-    labelBalconies: "Lloses i Pilars de Balcó",
+    labelBalconies: "Cantells de Llosa de Balcó",
+    labelBalconyFloor: "Terres de Balcó",
+    labelBalconyCeiling: "Sostres de Balcó",
+    labelWindowsills: "Ampits de Finestra",
     labelDividers: "Separador de Balcó",
     labelAwnings: "Tendals (Lona)",
     labelRailings: "Baranes Metàl·liques",
@@ -2621,8 +2666,9 @@ function applyStyle(styleObj) {
     document.getElementById('color-bunny').value = styleObj.bunnyColor;
   }
   // Apply colors
-  Object.keys(styleObj.colors).forEach(key => {
-    const val = styleObj.colors[key];
+  const colors = withBalconyColors(styleObj.colors);
+  Object.keys(colors).forEach(key => {
+    const val = colors[key];
     state.colors[key] = val;
     
     if (colorInputs[key]) colorInputs[key].value = val;
