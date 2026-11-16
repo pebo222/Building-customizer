@@ -248,6 +248,7 @@ function init() {
   setupLighting();
   setupEventListeners();
   setupSurfaceEditing();
+  setupHexColorInputs();
   controls.mouseButtons.LEFT = THREE.MOUSE.ROTATE;
   controls.touches.ONE = THREE.TOUCH.ROTATE;
   renderer.domElement.style.cursor = 'grab';
@@ -288,6 +289,52 @@ function refreshSurfaceStatus() {
   const prefix = ({en: 'Editing: ', es: 'Editando: ', ca: 'Editant: '})[document.documentElement.lang] || 'Editing: ';
   document.getElementById('surface-status').textContent = label ? prefix + label.textContent : '';
 }
+function normalizeHexColor(value) {
+  const digits = value.trim().replace(/^#/, '');
+  if (/^[0-9a-f]{6}$/i.test(digits)) return '#' + digits.toLowerCase();
+  if (/^[0-9a-f]{3}$/i.test(digits)) return '#' + [...digits].map(char => char + char).join('').toLowerCase();
+  return null;
+}
+
+function syncHexColor(key, value) {
+  colorLabels[key].textContent = value.toUpperCase();
+  const field = document.getElementById('hex-' + colorInputs[key].id);
+  if (field && document.activeElement !== field) {
+    field.value = value.toUpperCase();
+    field.removeAttribute('aria-invalid');
+    field.setCustomValidity('');
+  }
+}
+
+function setupHexColorInputs() {
+  Object.entries(colorInputs).forEach(([key, picker]) => {
+    const field = document.getElementById('hex-' + picker.id);
+    function apply(normalize = false) {
+      const color = normalizeHexColor(field.value);
+      field.setCustomValidity(color ? '' : 'Enter a HEX color such as #B6AF9E.');
+      field.setAttribute('aria-invalid', String(!color));
+      if (!color) return false;
+      if (normalize) field.value = color.toUpperCase();
+      picker.value = color;
+      // Reuse the picker handler for materials, saved-style state, and labels.
+      picker.dispatchEvent(new Event('input', {bubbles: true}));
+      return true;
+    }
+    field.addEventListener('input', () => apply());
+    field.addEventListener('change', () => apply(true));
+    field.addEventListener('keydown', e => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        if (!apply(true)) field.reportValidity();
+      } else if (e.key === 'Escape') {
+        field.value = picker.value.toUpperCase();
+        field.removeAttribute('aria-invalid');
+        field.setCustomValidity('');
+      }
+    });
+  });
+}
+
 function syncBunnyColorSettings() {
   const settings = document.getElementById('bunny-color-settings');
   if (!state.bunnyEnabled && settings.contains(document.activeElement)) {
@@ -1601,7 +1648,7 @@ function setupEventListeners() {
     picker.addEventListener('input', (e) => {
       const colorVal = e.target.value;
       state.colors[key] = colorVal;
-      colorLabels[key].textContent = colorVal.toUpperCase();
+      syncHexColor(key, colorVal);
       
       if (materials[key]) {
         materials[key].color.set(colorVal);
@@ -1754,7 +1801,7 @@ function setupEventListeners() {
 
       state.colors[key] = nextColorHex;
       if (colorInputs[key]) colorInputs[key].value = nextColorHex;
-      if (colorLabels[key]) colorLabels[key].textContent = nextColorHex.toUpperCase();
+      if (colorLabels[key]) syncHexColor(key, nextColorHex);
       if (materials[key]) {
         materials[key].color.set(nextColorHex);
       }
@@ -1966,7 +2013,7 @@ function applyPreset(presetName) {
     state.colors[key] = val;
     
     if (colorInputs[key]) colorInputs[key].value = val;
-    if (colorLabels[key]) colorLabels[key].textContent = val.toUpperCase();
+    if (colorLabels[key]) syncHexColor(key, val);
     
     if (materials[key]) {
       materials[key].color.set(val);
@@ -2599,7 +2646,7 @@ function applyStyle(styleObj) {
     state.colors[key] = val;
     
     if (colorInputs[key]) colorInputs[key].value = val;
-    if (colorLabels[key]) colorLabels[key].textContent = val.toUpperCase();
+    if (colorLabels[key]) syncHexColor(key, val);
     
     if (materials[key]) {
       materials[key].color.set(val);

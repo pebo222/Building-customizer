@@ -7,7 +7,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=13">
+  <link rel="stylesheet" href="styles.css?v=15">
   <!-- Import map for modern ES modules three.js -->
   <script type="importmap">
     {
@@ -123,6 +123,7 @@
 
     <div class="tab-content" id="tab-colors">
       <h2 data-i18n="colorsHeading">Customize Material Colors</h2>
+      <span id="hex-field-description" class="visually-hidden">HEX color</span>
       <div id="bunny-color-settings" hidden>
       <div class="color-picker-group">
         <label for="color-bunny"><span>Bunny fur</span></label>
@@ -137,10 +138,12 @@
       </button>
       
       <div class="color-picker-group">
-        <label for="color-left-wall" data-i18n="labelLeftWall">
-          <span>Left Wall (Front Segment)</span>
+        <div class="color-field-label"><label for="color-left-wall" data-i18n="labelLeftWall">
+          <span id="name-color-left-wall">Left Wall (Front Segment)</span>
           <span class="color-value-label" id="val-left-wall">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-left-wall" value="#E5E5E5" aria-labelledby="name-color-left-wall hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="leftWall" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -150,10 +153,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-left-wall-diagonal" data-i18n="labelLeftWallDiagonal">
-          <span>Left Wall (Diagonal Segment)</span>
+        <div class="color-field-label"><label for="color-left-wall-diagonal" data-i18n="labelLeftWallDiagonal">
+          <span id="name-color-left-wall-diagonal">Left Wall (Diagonal Segment)</span>
           <span class="color-value-label" id="val-left-wall-diagonal">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-left-wall-diagonal" value="#E5E5E5" aria-labelledby="name-color-left-wall-diagonal hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="leftWallDiagonal" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -163,10 +168,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-left-wall-parallel" data-i18n="labelLeftWallParallel">
-          <span>Left Wall (Parallel Segment)</span>
+        <div class="color-field-label"><label for="color-left-wall-parallel" data-i18n="labelLeftWallParallel">
+          <span id="name-color-left-wall-parallel">Left Wall (Parallel Segment)</span>
           <span class="color-value-label" id="val-left-wall-parallel">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-left-wall-parallel" value="#E5E5E5" aria-labelledby="name-color-left-wall-parallel hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="leftWallParallel" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -176,10 +183,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-front-facade" data-i18n="labelFrontFacade">
-          <span>Front Facade</span>
+        <div class="color-field-label"><label for="color-front-facade" data-i18n="labelFrontFacade">
+          <span id="name-color-front-facade">Front Facade</span>
           <span class="color-value-label" id="val-front-facade">#e0e0e0</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-front-facade" value="#E0E0E0" aria-labelledby="name-color-front-facade hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="frontFacade" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -189,10 +198,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-left-facade-strip" data-i18n="labelLeftFacadeStrip">
-          <span>Left Facade Strip</span>
+        <div class="color-field-label"><label for="color-left-facade-strip" data-i18n="labelLeftFacadeStrip">
+          <span id="name-color-left-facade-strip">Left Facade Strip</span>
           <span class="color-value-label" id="val-left-facade-strip">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-left-facade-strip" value="#E5E5E5" aria-labelledby="name-color-left-facade-strip hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="leftFacadeStrip" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -202,10 +213,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-right-facade-strip" data-i18n="labelRightFacadeStrip">
-          <span>Right Facade Strip</span>
+        <div class="color-field-label"><label for="color-right-facade-strip" data-i18n="labelRightFacadeStrip">
+          <span id="name-color-right-facade-strip">Right Facade Strip</span>
           <span class="color-value-label" id="val-right-facade-strip">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-right-facade-strip" value="#E5E5E5" aria-labelledby="name-color-right-facade-strip hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="rightFacadeStrip" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -215,10 +228,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-right-wall" data-i18n="labelRightWall">
-          <span>Right Side Wall</span>
+        <div class="color-field-label"><label for="color-right-wall" data-i18n="labelRightWall">
+          <span id="name-color-right-wall">Right Side Wall</span>
           <span class="color-value-label" id="val-right-wall">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-right-wall" value="#E5E5E5" aria-labelledby="name-color-right-wall hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="rightWall" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -228,10 +243,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-back-wall" data-i18n="labelBackWall">
-          <span>Back Wall</span>
+        <div class="color-field-label"><label for="color-back-wall" data-i18n="labelBackWall">
+          <span id="name-color-back-wall">Back Wall</span>
           <span class="color-value-label" id="val-back-wall">#e5e5e5</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-back-wall" value="#E5E5E5" aria-labelledby="name-color-back-wall hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="backWall" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -241,10 +258,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-balconies" data-i18n="labelBalconies">
-          <span>Balcony Slabs & Pillars</span>
+        <div class="color-field-label"><label for="color-balconies" data-i18n="labelBalconies">
+          <span id="name-color-balconies">Balcony Slabs & Pillars</span>
           <span class="color-value-label" id="val-balconies">#d0d0d0</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-balconies" value="#D0D0D0" aria-labelledby="name-color-balconies hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="balconies" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -254,10 +273,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-dividers" data-i18n="labelDividers">
-          <span>Balcony Divider</span>
+        <div class="color-field-label"><label for="color-dividers" data-i18n="labelDividers">
+          <span id="name-color-dividers">Balcony Divider</span>
           <span class="color-value-label" id="val-dividers">#d0d0d0</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-dividers" value="#D0D0D0" aria-labelledby="name-color-dividers hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="dividers" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -267,10 +288,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-awnings" data-i18n="labelAwnings">
-          <span>Awnings (Canvas fabric)</span>
+        <div class="color-field-label"><label for="color-awnings" data-i18n="labelAwnings">
+          <span id="name-color-awnings">Awnings (Canvas fabric)</span>
           <span class="color-value-label" id="val-awnings">#1B6E4E</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-awnings" value="#1B6E4E" aria-labelledby="name-color-awnings hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="awnings" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -280,10 +303,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-railings" data-i18n="labelRailings">
-          <span>Metal Railings</span>
+        <div class="color-field-label"><label for="color-railings" data-i18n="labelRailings">
+          <span id="name-color-railings">Metal Railings</span>
           <span class="color-value-label" id="val-railings">#3a3a3a</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-railings" value="#3A3A3A" aria-labelledby="name-color-railings hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="railings" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -293,10 +318,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-frames" data-i18n="labelFrames">
-          <span>Window & Door Frames</span>
+        <div class="color-field-label"><label for="color-frames" data-i18n="labelFrames">
+          <span id="name-color-frames">Window & Door Frames</span>
           <span class="color-value-label" id="val-frames">#2a2a2a</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-frames" value="#2A2A2A" aria-labelledby="name-color-frames hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="frames" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -306,10 +333,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-glass" data-i18n="labelGlass">
-          <span>Window Glass</span>
+        <div class="color-field-label"><label for="color-glass" data-i18n="labelGlass">
+          <span id="name-color-glass">Window Glass</span>
           <span class="color-value-label" id="val-glass">#8ab4f8</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-glass" value="#8AB4F8" aria-labelledby="name-color-glass hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="glass" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -319,10 +348,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-roof" data-i18n="labelRoof">
-          <span>Roof Slab</span>
+        <div class="color-field-label"><label for="color-roof" data-i18n="labelRoof">
+          <span id="name-color-roof">Roof Slab</span>
           <span class="color-value-label" id="val-roof">#d0d0d0</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-roof" value="#D0D0D0" aria-labelledby="name-color-roof hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="roof" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -332,10 +363,12 @@
       </div>
 
       <div class="color-picker-group">
-        <label for="color-roof-fixtures" data-i18n="labelRoofFixtures">
-          <span>Rooftop Fixtures</span>
+        <div class="color-field-label"><label for="color-roof-fixtures" data-i18n="labelRoofFixtures">
+          <span id="name-color-roof-fixtures">Rooftop Fixtures</span>
           <span class="color-value-label" id="val-roof-fixtures">#ffffff</span>
         </label>
+          <input type="text" class="hex-color-input" id="hex-color-roof-fixtures" value="#FFFFFF" aria-labelledby="name-color-roof-fixtures hex-field-description" maxlength="7" spellcheck="false" autocapitalize="off" autocomplete="off" placeholder="#RRGGBB">
+        </div>
         <div class="color-control-wrapper">
           <button class="btn-lock" data-color-key="roofFixtures" title="Lock Color" aria-label="Lock Color">🔓</button>
           <div class="color-input-wrapper">
@@ -419,6 +452,6 @@
     <p data-i18n="interactionHelp">🖱️ Left Click + Drag to rotate | 🖱️ Right Click + Drag to pan | 📜 Scroll to zoom</p>
   </div>
 
-  <script type="module" src="app.js?v=14"></script>
+  <script type="module" src="app.js?v=15"></script>
 </body>
 </html>
