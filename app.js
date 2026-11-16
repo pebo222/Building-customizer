@@ -361,6 +361,14 @@ function keepCameraAboveGround() {
   }
 }
 
+function getSurfaceColorKey(hit) {
+  const meshMaterial = hit.object.material;
+  const material = Array.isArray(meshMaterial)
+    ? meshMaterial[hit.face?.materialIndex ?? 0]
+    : meshMaterial;
+  return Object.keys(state.colors).find(key => materials[key] === material);
+}
+
 function setupSurfaceEditing() {
   const canvas = renderer.domElement;
   const raycaster = new THREE.Raycaster();
@@ -414,7 +422,7 @@ function setupSurfaceEditing() {
       return;
     }
     clearTimeout(bunnyTapTimer); bunnyTapTimer = null; lastBunnyTap = 0;
-    const key = Object.keys(state.colors).find(key => materials[key] === hit.object.material);
+    const key = getSurfaceColorKey(hit);
     if (!key || !colorInputs[key]) return;
     selectedSurface = key;
     refreshSurfaceStatus();
